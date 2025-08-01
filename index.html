@@ -1236,35 +1236,21 @@
                 submitGuess();
             }
         });
-         englishInput.addEventListener('input', updatePreview);
-        englishInput.addEventListener('keydown', (e) => {
-            // Dismiss any hints on key press
-            dismissHint();
-            
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                submitGuess();
-            }
-        });
-		// Add this new event listener after your existing ones
-		englishInput.addEventListener('input', function(e) {
-			// Only auto-lowercase if the user typed naturally (not using Shift/Caps deliberately)
-			const value = e.target.value;
-			const lastChar = value.slice(-1);
-			
-			// If it's the first character and it's uppercase, convert to lowercase
-			// This handles auto-capitalization but allows deliberate caps
-			if (value.length === 1 && lastChar === lastChar.toUpperCase() && lastChar !== lastChar.toLowerCase()) {
-				e.target.value = value.toLowerCase();
-				updatePreview();
-			}
-		});
+        
+	// Add this new event listener after your existing ones for suppressing autocapitalize
+	englishInput.addEventListener('input', function(e) {
+		// Only auto-lowercase if the user typed naturally (not using Shift/Caps deliberately)
+		const value = e.target.value;
+		const lastChar = value.slice(-1);
 		
-        submitBtn.addEventListener('click', submitGuess);
-        helpBtn.addEventListener('click', toggleHelp);
-        historyBtn.addEventListener('click', toggleHistory);
-        hintBtn.addEventListener('click', showHint);
-        newGameBtn.addEventListener('click', newGame);
+		// If it's the first character and it's uppercase, convert to lowercase
+		// This handles auto-capitalization but allows deliberate caps
+		if (value.length === 1 && lastChar === lastChar.toUpperCase() && lastChar !== lastChar.toLowerCase()) {
+			e.target.value = value.toLowerCase();
+			updatePreview();
+		}
+	});
+	    
         submitBtn.addEventListener('click', submitGuess);
         helpBtn.addEventListener('click', toggleHelp);
         historyBtn.addEventListener('click', toggleHistory);
