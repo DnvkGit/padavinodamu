@@ -1274,6 +1274,45 @@
                 dismissHint();
             }
         });
+
+	// new code 1Aug
+	// Add this new event listener after your existing ones for suppressing autocapitalize
+	let lastInputTime = 0;
+	let wasDeliberate = false;
+	
+	englishInput.addEventListener('input', function(e) {
+	    const currentTime = Date.now();
+	    const value = e.target.value;
+	    const lastChar = value.slice(-1);
+	    
+	    // If user types quickly after clearing or starting fresh, it's likely auto-cap
+	    const timeSinceLastInput = currentTime - lastInputTime;
+	    
+	    // Check if it's the first character and uppercase
+	    if (value.length === 1 && lastChar === lastChar.toUpperCase() && lastChar !== lastChar.toLowerCase()) {
+	        // If typed very quickly (< 100ms) after focus/clear, it's likely auto-cap
+	        // If typed slower (> 100ms), user likely intended the capital
+	        if (timeSinceLastInput < 100 || e.inputType === 'insertCompositionText') {
+	            e.target.value = value.toLowerCase();
+	            wasDeliberate = false;
+	        } else {
+	            wasDeliberate = true;
+	        }
+	    }
+	    
+	    lastInputTime = currentTime;
+	    updatePreview();
+	});
+	
+	// Track when field is focused/cleared
+	englishInput.addEventListener('focus', function() {
+	    lastInputTime = Date.now();
+	});
+	
+	englishInput.addEventListener('keydown', function() {
+	    lastInputTime = Date.now();
+	});
+	// new code 1aug ends
         
         // Easter egg functionality
         document.addEventListener('keydown', (e) => {
