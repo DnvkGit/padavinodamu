@@ -32,13 +32,47 @@
         
         .header {
             text-align: center;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 0.5rem;
         }
         
         .header-title {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            color: hsl(0 0% 100%);
+        }
+        
+        .header-btn:hover {
+            background: hsl(258 40% 15%);
+        }
+        
+        .date-display {
+            font-size: 0.875rem;
+            color: hsl(199 89% 72%);
+            font-weight: 500;
         }
         
         .font-telugu {
@@ -46,18 +80,11 @@
         }
         
         .input-section {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             background: hsl(258 96% 8%);
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 12px;
             border: 1px solid hsl(258 40% 12%);
-        }
-        
-        .input-label {
-            font-size: 0.875rem;
-            color: hsl(199 89% 72%);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
         }
         
         .input-row {
@@ -118,9 +145,9 @@
         .game-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.375rem;
-            margin-bottom: 1rem;
-            max-width: 300px;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+            max-width: 280px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -128,15 +155,15 @@
         .game-tile {
             aspect-ratio: 1;
             border: 1px solid hsl(258 40% 12%);
-            border-radius: 6px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.2s;
-            height: 50px;
-            max-height: 50px;
+            height: 45px;
+            max-height: 45px;
         }
         
         .tile-correct {
@@ -163,9 +190,9 @@
             color: white;
         }
         
-        .tile-wrong-pos-samyuk-cons {
-            background: rgb(150, 70, 0);
-            border-color: rgb(170, 90, 20);
+        .tile-correct-pos-wrong-samyuk {
+            background: hsl(271 91% 65%);
+            border-color: hsl(271 91% 65%);
             color: white;
         }
         
@@ -242,6 +269,23 @@
             text-align: center;
             z-index: 1000;
             color: hsl(142 76% 70%);
+            font-size: 1.25rem;
+            font-weight: 600;
+            animation: sparkleAndFade 5s ease-in-out forwards;
+        }
+        
+        .game-over-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: hsl(0 84% 15%);
+            border: 2px solid hsl(0 84% 30%);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            z-index: 1000;
+            color: hsl(0 84% 70%);
             font-size: 1.25rem;
             font-weight: 600;
             animation: sparkleAndFade 5s ease-in-out forwards;
@@ -383,38 +427,32 @@
         }
     </style>
 </head>
-    
 <body>
     <div class="container">
-        <div class="header" style="position: relative;">
-            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 0.5rem; position: relative;">
-                <h1 class="header-title font-telugu" style="color: hsl(258 90% 65%); margin: 0;">పద వినోదము</h1>
-                <div id="currentDateDisplay" style="position: absolute; top: 0; right: 0; font-size: 0.875rem; color: hsl(199 89% 72%); display: none;">
+        <div class="header">
+            <div class="header-top">
+                <h1 class="header-title font-telugu" style="color: hsl(258 90% 65%);">పద వినోదము</h1>
+                <div id="currentDateDisplay" class="date-display" style="display: none;">
                     Today
                 </div>
             </div>
-            <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
-                <button id="helpBtn" class="btn" style="padding: 0.5rem; width: auto; background: hsl(258 40% 25%);" title="Help">?</button>
-                <button id="historyBtn" class="btn" style="padding: 0.5rem; width: auto; background: hsl(258 40% 25%);" title="History">📅</button>
-                <button id="hintBtn" class="btn" style="padding: 0.5rem; width: auto; background: hsl(258 40% 25%);" title="Hint">💡</button>
-                <button id="newGameBtn" class="btn" style="padding: 0.5rem; width: auto; background: hsl(258 40% 25%);" title="New Game">🔄</button>
+            <div class="header-controls">
+                <button id="helpBtn" class="header-btn" title="Help">?</button>
+                <button id="historyBtn" class="header-btn" title="History">📅</button>
+                <button id="hintBtn" class="header-btn" title="Hint">💡</button>
+                <button id="newGameBtn" class="header-btn" title="New Game">🔄</button>
             </div>
         </div>
         
         <div class="input-section">
-            <div class="input-label">Type in English</div>
             <div class="input-row">
                 <input 
                     type="text" 
                     id="englishInput"
                     class="input-field"
-                    placeholder="e.g., sarigama"
-                    autocapitalize="off"
+                    placeholder="Type in English eg:sarigama"
                     autocomplete="off"
-                    spellcheck="false"
-                    inputmode="text"
-                    
-                    
+                    autocapitalize="off"
                 />
                 <div id="teluguPreview" class="preview-area font-telugu">
                     <span style="color: hsl(215 13% 44%);">Telugu preview...</span>
@@ -820,9 +858,9 @@
                     const guessHasConsonant = hasConsonantJoin(guessSyll);
                     const targetHasConsonant = hasConsonantJoin(targetSyll);
                     
-                    // If both have consonant joins or same consonant repetition -> BROWN (samyuktakshara)
+                    // If both have consonant joins or same consonant repetition -> PURPLE (correct position, wrong samyuktakshara)
                     if (guessHasConsonant || targetHasConsonant) {
-                        colors.push('wrong-pos-samyuk-cons'); // BROWN
+                        colors.push('correct-pos-wrong-samyuk'); // PURPLE
                     } else {
                         // Different gunintam (vowel signs only) -> PINK
                         colors.push('wrong-pos-gunintam'); // PINK
@@ -920,16 +958,10 @@
                     </div>
                 `;
             } else if (gameStatus === 'lost') {
-                gameStatusDiv.innerHTML = `
-                    <div class="status-lost">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💔</div>
-                        <div><strong>Game Over!</strong></div>
-                        <div style="margin-top: 0.5rem;">The word was: <span class="font-telugu">${currentWord.word}</span></div>
-                        <div style="margin-top: 0.5rem; font-size: 1rem; color: hsl(0 84% 70%);">
-                            Meaning: ${currentWord.meaning}
-                        </div>
-                    </div>
-                `;
+                // Show auto-dismissing game over message
+                showGameOverMessage(`💔 Game Over! The word was: ${currentWord.word} (${currentWord.meaning})`);
+                
+                gameStatusDiv.innerHTML = '';
             } else {
                 gameStatusDiv.innerHTML = '';
             }
@@ -946,6 +978,21 @@
             setTimeout(() => {
                 if (congratsDiv.parentNode) {
                     congratsDiv.parentNode.removeChild(congratsDiv);
+                }
+            }, 5000);
+        }
+        
+        // Show auto-dismissing game over message
+        function showGameOverMessage(message) {
+            const gameOverDiv = document.createElement('div');
+            gameOverDiv.className = 'game-over-message';
+            gameOverDiv.innerHTML = `<div class="font-telugu">${message}</div>`;
+            document.body.appendChild(gameOverDiv);
+            
+            // Auto-remove after animation
+            setTimeout(() => {
+                if (gameOverDiv.parentNode) {
+                    gameOverDiv.parentNode.removeChild(gameOverDiv);
                 }
             }, 5000);
         }
@@ -1117,7 +1164,16 @@
             // Reset to today's date
             selectedDate = new Date();
             const currentDateDisplay = document.getElementById('currentDateDisplay');
-            currentDateDisplay.style.display = 'none';
+            
+            // Show current date by default
+            const today = new Date();
+            const todayFormatted = today.toLocaleDateString('en-GB', { 
+                day: '2-digit',
+                month: 'short', 
+                year: 'numeric'
+            }).replace(/,/g, '');
+            currentDateDisplay.textContent = todayFormatted;
+            currentDateDisplay.style.display = 'block';
             
             guesses = [];
             gameStatus = 'playing';
@@ -1226,7 +1282,20 @@
         }
         
         // Event listeners
-        // englishInput.addEventListener('input', updatePreview);
+        // Handle first character auto-capitalization only
+        englishInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            // Only convert first character to lowercase if it was auto-capitalized
+            if (value.length === 1 && value === value.toUpperCase() && value !== value.toLowerCase()) {
+                // Check if this might be intentional by timing
+                const now = Date.now();
+                if (!window.lastKeyTime || now - window.lastKeyTime < 100) {
+                    e.target.value = value.toLowerCase();
+                }
+            }
+            window.lastKeyTime = Date.now();
+            updatePreview();
+        });
         englishInput.addEventListener('keydown', (e) => {
             // Dismiss any hints on key press
             dismissHint();
@@ -1236,23 +1305,6 @@
                 submitGuess();
             }
         });
-        
-	// Add this new event listener after your existing ones for suppressing autocapitalize
-	englishInput.addEventListener('input', function(e) {
-	    // Only auto-lowercase if the user typed naturally (not using Shift/Caps deliberately)
-	    const value = e.target.value;
-	    const lastChar = value.slice(-1);
-	    
-	    // If it's the first character and it's uppercase, convert to lowercase
-	    // This handles auto-capitalization but allows deliberate caps
-	    if (value.length === 1 && lastChar === lastChar.toUpperCase() && lastChar !== lastChar.toLowerCase()) {
-	        e.target.value = value.toLowerCase();
-	    }
-	    
-	    // Always update preview after any input change
-	    updatePreview();
-	});
-	    
         submitBtn.addEventListener('click', submitGuess);
         helpBtn.addEventListener('click', toggleHelp);
         historyBtn.addEventListener('click', toggleHistory);
@@ -1274,45 +1326,6 @@
                 dismissHint();
             }
         });
-
-	// new code 1Aug
-	// Add this new event listener after your existing ones for suppressing autocapitalize
-	let lastInputTime = 0;
-	let wasDeliberate = false;
-	
-	englishInput.addEventListener('input', function(e) {
-	    const currentTime = Date.now();
-	    const value = e.target.value;
-	    const lastChar = value.slice(-1);
-	    
-	    // If user types quickly after clearing or starting fresh, it's likely auto-cap
-	    const timeSinceLastInput = currentTime - lastInputTime;
-	    
-	    // Check if it's the first character and uppercase
-	    if (value.length === 1 && lastChar === lastChar.toUpperCase() && lastChar !== lastChar.toLowerCase()) {
-	        // If typed very quickly (< 100ms) after focus/clear, it's likely auto-cap
-	        // If typed slower (> 100ms), user likely intended the capital
-	        if (timeSinceLastInput < 100 || e.inputType === 'insertCompositionText') {
-	            e.target.value = value.toLowerCase();
-	            wasDeliberate = false;
-	        } else {
-	            wasDeliberate = true;
-	        }
-	    }
-	    
-	    lastInputTime = currentTime;
-	    updatePreview();
-	});
-	
-	// Track when field is focused/cleared
-	englishInput.addEventListener('focus', function() {
-	    lastInputTime = Date.now();
-	});
-	
-	englishInput.addEventListener('keydown', function() {
-	    lastInputTime = Date.now();
-	});
-	// new code 1aug ends
         
         // Easter egg functionality
         document.addEventListener('keydown', (e) => {
