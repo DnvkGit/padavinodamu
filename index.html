@@ -492,7 +492,7 @@
         <div id="helpModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
             <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
                 <div style="background: hsl(258 96% 8%); border-radius: 12px; padding: 2rem; max-width: 500px; width: 100%;">
-                    <h2 style="text-align: center; margin-bottom: 1.5rem; color: hsl(258 90% 65%);">How to Play</h2>
+                    <h2 style="text-align: center; margin-bottom: 1.0rem; color: hsl(258 90% 65%);">How to Play</h2>
                     
                     <div style="margin-bottom: 1.5rem;">
                         <h3 style="color: hsl(199 89% 72%); margin-bottom: 0.5rem;">Color Guide:</h3>
@@ -507,38 +507,42 @@
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(327 73% 73%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(327 73% 80%);">PINK:</strong> Same consonant, wrong gunintam Pos OK</span>
+                                <span><strong style="color: hsl(327 73% 80%);">PINK:</strong> Cons & Pos OK, wrong gunintam</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(271 91% 65%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(271 91% 75%);">PURPLE:</strong> Consonant & Pos OK, wrong samyuktakshara</span>
+                                <span><strong style="color: hsl(271 91% 75%);">PURPLE:</strong> Cons & Pos OK, wrong samyuk</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(199 89% 72%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(199 89% 80%);">LIGHT BLUE:</strong> Consonant match, gunintam & Pos Wrong</span>
+                                <span><strong style="color: hsl(199 89% 80%);">LIGHT BLUE:</strong> Cons OK, gunintam & Pos Wrong</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(25 95% 53%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(25 95% 65%);">BROWN:</strong> Consonant OK, samyuktakshara & Pos Wrong</span>
+                                <span><strong style="color: hsl(25 95% 65%);">BROWN:</strong> Cons OK, samyuk & Pos Wrong</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(215 13% 37%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(215 13% 44%);">GRAY:</strong> Not in word </span>
+                                <span><strong style="color: hsl(215 13% 44%);">GRAY:</strong> Not in word</span>								
+                            </div>
+							<div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span>Cons-Consonant; samyuk-Samyuktakshara; Pos-Position</span>								
                             </div>
                         </div>
-                    </div>
-                    
-                    <div style="background: hsl(258 90% 20%); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    </div>                
+                    <!-- <div style="background: hsl(258 90% 20%); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                         <p style="text-align: center; font-size: 0.875rem;">
                             <strong>Example:</strong> Type "sarigama" → gets "సరిగమ"
                         </p>
                     </div>
-                    
+                    -->
                     <div style="margin-bottom: 1.5rem;">
                         <h3 style="color: hsl(199 89% 72%); margin-bottom: 0.5rem;">Tips:</h3>
                         <ul style="font-size: 0.875rem; padding-left: 1rem;">
-                            <li>Type English letters to get Telugu syllables</li>
-                            <li>Use the 💡 hint button (shows word meaning after solving at least one syllable)</li>
+                            <li>Type in English for Telugu syllables - "sarigama" for "సరిగమ" </li>
+							<li>First char uppercase suppressed. Space before will override it. </li>
+                            <li>Use 💡 Hint Icon for word meaning</li>
+							<li>(You should solve atleast one syllable to avail hint)</li>
                             <li>Each guess must be exactly 4 syllables</li>
                         </ul>
                     </div>
