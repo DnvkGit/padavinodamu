@@ -507,19 +507,19 @@
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(327 73% 73%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(327 73% 80%);">PINK:</strong> Same consonant, wrong gunintam</span>
+                                <span><strong style="color: hsl(327 73% 80%);">PINK:</strong> Same consonant, wrong gunintam Pos OK</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(271 91% 65%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(271 91% 75%);">PURPLE:</strong> Same consonant, wrong samyuktakshara</span>
+                                <span><strong style="color: hsl(271 91% 75%);">PURPLE:</strong> Consonant & Pos OK, wrong samyuktakshara</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(199 89% 72%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(199 89% 80%);">LIGHT BLUE:</strong> Basic consonant match, gunintam wrong</span>
+                                <span><strong style="color: hsl(199 89% 80%);">LIGHT BLUE:</strong> Consonant match, gunintam & Pos Wrong</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(25 95% 53%); border-radius: 4px;"></div>
-                                <span><strong style="color: hsl(25 95% 65%);">BROWN:</strong> Basic consonant match, samyuktakshara wrong</span>
+                                <span><strong style="color: hsl(25 95% 65%);">BROWN:</strong> Consonant OK, samyuktakshara & Pos Wrong</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div style="width: 20px; height: 20px; background: hsl(215 13% 37%); border-radius: 4px;"></div>
@@ -539,7 +539,6 @@
                         <ul style="font-size: 0.875rem; padding-left: 1rem;">
                             <li>Type English letters to get Telugu syllables</li>
                             <li>Use the 💡 hint button (shows word meaning after solving at least one syllable)</li>
-                            <li>Hold Ctrl+Shift for 3 seconds after 5 attempts for easter egg</li>
                             <li>Each guess must be exactly 4 syllables</li>
                         </ul>
                     </div>
@@ -1287,13 +1286,8 @@
             const value = e.target.value;
             // Only convert first character to lowercase if it was auto-capitalized
             if (value.length === 1 && value === value.toUpperCase() && value !== value.toLowerCase()) {
-                // Check if this might be intentional by timing
-                const now = Date.now();
-                if (!window.lastKeyTime || now - window.lastKeyTime < 100) {
-                    e.target.value = value.toLowerCase();
-                }
+                e.target.value = value.toLowerCase();
             }
-            window.lastKeyTime = Date.now();
             updatePreview();
         });
         englishInput.addEventListener('keydown', (e) => {
