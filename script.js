@@ -1,0 +1,857 @@
+// EXACT transliterator logic
+        class Transliterator {
+            constructor() {
+                this.vowels = {
+                    'a': 'అ', 'aa': 'ఆ', 'A': 'ఆ', 'i': 'ఇ', 'ee': 'ఈ', 'I': 'ఈ',
+                    'u': 'ఉ', 'U': 'ఊ', 'Ri': 'ఋ', 'RI': 'ౠ', 'e': 'ఎ', 'E': 'ఏ',
+                    'ai': 'ఐ', 'o': 'ఒ', 'O': 'ఓ', 'au': 'ఔ', 'M': 'ం', 'aM': 'అం', ':': 'ః'
+                };
+
+                this.vowelSigns = {
+                    'a': '', 'aa': 'ా', 'A': 'ా', 'i': 'ి', 'ee': 'ీ', 'I': 'ీ',
+                    'u': 'ు', 'oo': 'ూ', 'U': 'ూ', 'e': 'ె', 'E': 'ే', 'ai': 'ై',
+                    'o': 'ొ', 'O': 'ో', 'au': 'ౌ', 'ou': 'ౌ', 'M': 'ం', '-': '్', 'M-': 'ఁ',
+                    'Ri': 'ృ', 'RI': 'ౄ', ':': 'ః'
+                };
+
+                this.consonants = {
+                    'k': 'క', 'kh': 'ఖ', 'K': 'ఖ', 'g': 'గ', 'gh': 'ఘ', 'G': 'ఘ', 'NG': 'ఙ',
+                    'c': 'చ', 'ch': 'చ', 'chh': 'ఛ', 'C': 'ఛ', 'j': 'జ', 'jh': 'ఝ', 'J': 'ఝ', 'NY': 'ఞ',
+                    'T': 'ట', 'Th': 'ఠ', 'D': 'డ', 'Dh': 'ఢ', 'N': 'ణ',
+                    't': 'త', 'th': 'థ', 'd': 'ద', 'dh': 'ధ', 'n': 'న',
+                    'p': 'ప', 'ph': 'ఫ', 'f': 'ఫ', 'b': 'బ', 'bh': 'భ', 'B': 'భ', 'm': 'మ',
+                    'y': 'య', 'r': 'ర', 'l': 'ల', 'L': 'ళ', 'v': 'వ', 'w': 'వ', 'S': 'శ', 's': 'స',
+                    'sh': 'ష', 'Sh': 'ష', 'h': 'హ', 'kSh': 'క్ష', 'x': 'క్ష'
+                };
+
+                this.nconjoins = {
+                    'nk': 'ం', 'nkh': 'ం', 'ng': 'ం', 'ngh': 'ం', 'nc': 'ం', 'nch': 'ం',
+                    'nj': 'ం', 'njh': 'ం', 'nT': 'ం', 'nTh': 'ం', 'nD': 'ం', 'nDh': 'ం',
+                    'nt': 'ం', 'nth': 'ం', 'nd': 'ం', 'ndh': 'ం', 'nl': 'ం', 'ns': 'ం',
+                    'nS': 'ం', 'nSh': 'ం'
+                };
+
+                this.virama = '్';
+                this.anusvar = 'ం';
+            }
+
+            transliterate(inputText) {
+                if (!inputText || typeof inputText !== 'string') {
+                    return '';
+                }
+
+                let output = '';
+                let i = 0;
+                const n = inputText.length;
+
+                while (i < n) {
+                    let found = false;
+                    
+                    // Check for vowels first
+                    for (const vLen of [2, 1]) {
+                        const vowelStr = inputText.substring(i, i + vLen);
+                        if (i + vLen <= n && vowelStr in this.vowels) {
+                            output += this.vowels[vowelStr];
+                            i += vLen;
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        // Check for consonants
+                        for (const cLen of [3, 2, 1]) {
+                            const consStr = inputText.substring(i, i + cLen);
+                            if (i + cLen <= n && consStr in this.consonants) {
+                                const cons = consStr;
+                                i += cLen;
+                                let vowel = '';
+                                
+                                // Look ahead for vowel
+                                for (const vLen of [2, 1]) {
+                                    const vowelStr = inputText.substring(i, i + vLen);
+                                    if (i + vLen <= n && vowelStr in this.vowelSigns) {
+                                        vowel = vowelStr;
+                                        i += vLen;
+                                        break;
+                                    }
+                                }
+                                
+                                // Handle n-joins as anusvara or virama
+                                if (cons === 'n' && vowel === '') {
+                                    const checkStr = inputText.substring(i - cLen, i + 1);
+                                    if (checkStr in this.nconjoins) {
+                                        output += this.anusvar;
+                                    } else {
+                                        output += this.consonants[cons] + this.virama;
+                                    }
+                                } else {
+                                    output += this.consonants[cons];
+                                    if (vowel in this.vowelSigns) {
+                                        output += this.vowelSigns[vowel];
+                                    } else if (vowel === '') {
+                                        output += this.virama;
+                                    }
+                                }
+                                
+                                found = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!found) {
+                            output += inputText[i];
+                            i += 1;
+                        }
+                    }
+                }
+
+                return output;
+            }
+
+            splitIntoSyllables(tword) {
+                if (!tword || typeof tword !== 'string') {
+                    return ['', '', '', ''];
+                }
+
+                const arrU = Array.from(tword).map(ch => ch.charCodeAt(0));
+                const arrE = [];
+                let i = 0;
+                const size1 = arrU.length;
+
+                while (i < size1) {
+                    const tc = arrU[i];
+                    const nxtch = i + 1 < size1 ? arrU[i + 1] : null;
+                    const nxtnxtch = i + 2 < size1 ? arrU[i + 2] : null;
+
+                    arrE.push(String.fromCharCode(tc));
+
+                    if (this.isAcchu(tc) && (nxtch === null || !this.isSpl(nxtch))) {
+                        arrE.push(',');
+                    } else if (this.isAcchu(tc) && this.isSpl(nxtch)) {
+                        arrE.push(String.fromCharCode(nxtch));
+                        arrE.push(',');
+                        i += 1;
+                    } else if (this.isHallu(tc) && (nxtch !== null && (this.isHallu(nxtch) || this.isAcchu(nxtch)))) {
+                        arrE.push(',');
+                    } else if (this.isHallu(tc) && (nxtch !== null && (this.isMatra(nxtch) || this.isSpl(nxtch)))) {
+                        arrE.push(String.fromCharCode(nxtch));
+                        if (nxtnxtch !== null && this.isSpl(nxtnxtch)) {
+                            arrE.push(String.fromCharCode(nxtnxtch));
+                            i += 1;
+                        }
+                        arrE.push(',');
+                        i += 1;
+                    } else if (this.isSpace(tc)) {
+                        if (arrE.length >= 2 && arrE[arrE.length - 2] !== ',') {
+                            arrE.push(',');
+                        }
+                        arrE.push('*');
+                        arrE.push(',');
+                    }
+
+                    i += 1;
+                }
+
+                arrE.push(',');
+                const syllables = arrE.join('').split(',');
+                const filtered = syllables.map(syl => syl.trim()).filter(syl => syl !== '');
+                
+                // Ensure we have exactly 4 syllables
+                while (filtered.length < 4) {
+                    filtered.push('');
+                }
+                
+                return filtered.slice(0, 4);
+            }
+
+            isAcchu(unic) {
+                return (3077 <= unic && unic <= 3092) || (unic === 3168);
+            }
+
+            isHallu(unic) {
+                return (3093 <= unic && unic <= 3129) || (3160 <= unic && unic <= 3161);
+            }
+
+            isSpl(unic) {
+                return 3072 <= unic && unic <= 3076;
+            }
+
+            isMatra(unic) {
+                return (3133 <= unic && unic <= 3148) || (unic === 3074);
+            }
+
+            isSpace(unic) {
+                return unic === 32;
+            }
+        }
+
+        // Game logic
+        const transliterator = new Transliterator();
+        
+        // Complete word list from TWORDLE.py
+        const gameWords = [
+			'కరవాల:ఖడ్గము', 'కృపాణము:కరవాలము', 'అనుమానం:సందేహం  ', 'మరాళము:హంస', 'అవధూత:సన్యాసి', 'ఎండతాకు:వడదెబ్బ ',
+			  'తాళగింపు:తాళమువేయు', 'తిరకాసు:జటిలసమస్య', ' ఒరిపిడి : రాపిడి ', 'కరటక:ఎండ్రకాయ', 'సరభస:కోపం కలవాడు',
+			  'ఆలాపన:రాగాలాపము', 'నిశాగణ:రాత్రి సమూహము ', 'కొండకోతి:కొండముచ్చు', 'బద్ధముష్టి:పిసినిగొట్టు',
+			  'దృష్టితీరు:వైఖరి', 'రామాయణం:రాముని చరితం ', 'డాబుసరి:దర్పము', 'కనుబొమ:భ్రుకుటి', 'సహకారం:సమిష్టి ',
+			  'నడిరేయి:అర్ధరాత్రి', 'బంధువులు:చుట్టాలు', 'అక్కటిక:కనికరం', 'ఇందీవరం:నల్లగలువ', 'అడ్డకట్టు:నిరోధించు',
+			  'దివెగుడి:దీపపు గూడు', 'ఘృతశాక:నెయ్యితో కలిపిన కూర', 'కుశలత:నేర్పు', 'కవుగిలి:ఆలింగనము',
+			  'అభిశస్తి:అపవాదము', 'వర్ణనలు:వర్ణనలు', 'ప్రవర్తన:నడత', 'కల్మషాలు:చెడులు', 'మీనకేతు:మన్మథుఁడు', 'పొలిమేర:సరిహద్దు',
+			  'కడియాలు:కంకణములు', 'కబళము:ముద్ద', 'వడియాలు:వేయించిన తిను బండారం', 'నిషిద్దము:ప్రతిబంధము',
+			  'కుందనము:మేలిమి బంగారము', 'బ్రహ్మాండము:విశ్వము', 'మేలురాక:స్వాగతము', 'అనుక్షణం:ప్రతిక్షణము',
+			  'మరకత:పచ్చఱాయి', 'సౌరభము:పరిమళము', 'కరవాలం:కత్తి', 'సమావేశం :కూటమి', 'పతకము: నగ', 'కనుకట్టు:ఇంద్రజాలము',
+			  'వడుకము:వడియము', 'ఉత్సుకత:తహతహ', 'కళ్ళువిచ్చు:జ్ఞానోదయమగు', 'భూమార్గము:సొరంగము', 'సతమతం:ఆయాసము',
+			  'అనంకుశ:స్వతంత్రుడు', 'తనుచ్ఛాయ:శరీర శోభ/నీడ', 'పెనుగాలి:ప్రచండవాయువు', 'మదాలస:అప్సరస', 'ఇందుమౌళి:ఈశ్వరుడు',
+			  'సుతరాము:పూర్తిగా', 'అరికాలు:పాదతలము', 'వటుత్వము:బ్రహ్మచర్యము', 'నిధానము :స్థాపనము', 'బ్రహ్మ రథం:ఘన స్వాగతం',
+			  'తీరుపరి:న్యాయాధిపతి', 'నతవైరి:శరణాగతుడైన శత్రువు', 'పొలపరి:దొంగ ', 'సామరస్యం:ప్రశాంతం', 'అలసట:ఆయాసము',
+			  'ప్రతిహారి:ద్వారపాలకుడు ', 'తిరుగుడు:భ్రమణము', 'తిట్టుమోతు:దూషణశీలి', 'వరుసము:సంవత్సరము',
+			  'దమఘోష:అహంకారము', 'దేవదారు:ఒకానొక వృక్షము ', 'కలంకారి:వ్రాతపని వస్త్రము.', 'తరువిడు:నిర్బంధించు', 'మారుమోత:ప్రతిధ్వని',
+			  'కారంధమి:కాంస్యకారుడు', 'గాజుకుప్పె:కాచపాత్ర', 'పిడికెడు:ముష్టి', 'చిగురుకు:చివరకు', 'అడుగంటి :వట్టిపోవు',
+			  'తెలిగంటి:స్త్రీ', 'పిపీలిక:చీమ', 'కితకిత:చక్కిలిగింత ', 'కౌపీనము:గోచి  ', 'దేవసృష్టా :మద్యము',
+			  'విలుకాడు:ధనుర్ధరుడు', 'సంప్రేషము  :పనుపు', 'కాటాగరు:పెద్ద త్రాసు తూచు వ్యక్తి', 'నడ్డిపూస:నడ్డికీలు ',
+			  'దండాకోరి:మొండి  ', 'విలయము:అపాయము  ', 'అళీకము:అప్రియము / నొసలు', 'అంపదొన:అంబుల పొది',
+			  'తగులము:ఆసక్తి, అడ్డపాటు సంబంధము', 'కోలెముక:వెన్నెముక', 'నదపతి:సముద్రుడు ', 'కనుకందు:లేతబిడ్డ  ',
+			  'బందడము:వెడల్పునోరుగలకుండ', 'ధమనీల:పురుషుడు', 'బొందడము:కవచము', 'వరూథము :కవచము/ గృహము',
+			  'ఆఖుభుక్కు:పిల్లి', 'సంప్రాప్తము:లభించిన ', 'త్రిలౌహక:బంగారము-వెండి-రాగి', 'అనామిక:ఉంగరపువ్రేలు/ అనామము',
+			  'అన్వేషక :వెదకువాడు', 'శార్దూలము:పులి/ సింహము', 'రత్నప్రభా:కాంతి కలిగిన స్త్రీ.', 'ఉటజము :పర్ణశాల', 'పారదోలు :తరుము',
+			  'గోరుకల్లు:ముల్లుదీయు  దబ్బనము', 'నలుగడ:నాలుగు దిక్కులు.', 'రమఠము :ఇంగువ', 'తిమ్మనగు:అందమగు',
+			  'తెలికలు:నువ్వులు', 'కమ్మగుట్టు:అతిరహస్యము', 'కుదిరిక :అమరిక', 'చెట్టనట్టు :కోతి', 'పలంకష: మోదుగు చెట్టు',
+			  'పొడగను:చూచు', 'విదియము :బాల్యక్రీడలు ', 'ఉత్పుల్లము :విరిసినది', 'కమాయిషు:వ్యవహారము జరుపుట.',
+			  'ఓసడిల్లు:తగ్గు / తొలగు', 'వనరులు :సంపత్తి (resources)', 'అధిభూతం :పరమాత్మ', 'అద్రగణం:అన్యాయం ',
+			  'కిల్బిషము:పాపము', 'అబ్జహస్త :సూర్యుడు', 'నిరీక్షణ:ఎదురుచూచుట', 'నీలవేణి:నల్లని జడగలది',
+			  'విలుకాడు:వింటివాడు', 'శంపాలత :మెరుపు తీగ', 'కరివేల్పు :కృష్ణుడు', 'రణనము:ధ్వని /మ్రోత', 'కరేణువు:ఆడేనుగు',
+			  'లావాదేవీ :బేరసారాలు', 'మల్లకుడు  :కఠినుడు', 'వృషాకపి:అగ్గి', 'వెర్రికుట్టు:అవివేకి ', 'కత్తలము :కవచము ',
+			  'గడుసరి  :తెలివైనవాడు', 'రావిరేక :నొసటి భూషణము', 'ఏకాండము:అఖండము ', 'వైశసము :హాని ', 'తమ్మిచెలి:సూర్యుడు',
+			  'కలమంద :మందుచెట్టు', 'కృతఘ్నడు: మేలు మరచినవాఁు', 'కారుచిచ్చు:దావానలము', 'అన్తశయ్యా :చావు / శ్మశానము',
+			  'కళ్ళజోడు:కళ్లద్దాలు', 'ఒలిపెర:వానతుంపర', 'మున్నరక :ధైర్యము', 'కణంజము :ధాన్యపు గరిసె / గోదాము', 'ఆడరము:సన్నాహము',
+			  'కాలశాక:కరివేపాకు చెట్టు', 'యకాయకి :ఆగకుండా', 'ఉజ్జీవము :జీవనము', 'శాంతనవ:భీష్ముడు',
+			  'కూడియాడు:కలసిమెలసి తిరుగు', 'ముఖాముఖి :ఎదురెదురుగా', 'స్మారకము :స్మృతి', 'అధ్యాపనం:చదువు చెప్పడం',
+			  'మానికము:కెంపు / రతనము', 'గ్రక్కదలు:కంపించు', 'ఛీత్కరించు  :అసహ్యించు./ ఛీకొట్టు', 'మానసీక :హంస',
+			  'కాకమాచీ:ఉడుసరచెట్టు(for coughs)', 'కొమారిత:కూతురు', 'కోలంబక  :వీణయొక్క భాగము', 'కట్టుముడి :నిబంధన ',
+			  'జాతీఫల:జాజికాయ', 'తరుణుడు :కోడెకాడు', 'తక్కుబిక్కు:మంచి చెడ్డ', 'రామతమ్మ :నిబంధన ', 'సమున్నతి:జాజికాయ',
+			  'ముదితుడు :సంతోషించినవాడు', 'అంతర్జల: నీటిమధ్యలో', 'పొడుగాటి :నిడవైన ', 'ధూమకేతు:తోకచుక్క / అగ్ని',
+			  'గరేకుండ  :ఇత్తడి లేక రాగికుండ', 'పెండలము: దినుసు దుంప', 'డేగకన్ను :నిశితదృష్టి', 'పోటుగంప:పెద్దగంప',
+			  'పరాత్పరం  :వేరుగా', 'దుంపనక్కు: ముభావము', 'పిపీలక :చీమ ', 'అభినంద:ప్రసన్నుడగుట', 'కోదండము  :విల్లు ',
+			  'కయాహము: గేదెదూడ.', 'సంభావన :సమ్మానము  ', 'పరవడి :గంతు', 'నలుగడ:నాలుగు ప్రక్కలు',
+			  'వాజకూత: పనికిమాలిన మాట', 'ప్రణమిల్లు :నమస్కరింౘు  ', 'కతిపయ :కొన్ని', 'కోమలత:మృదువు', 'విచారిత:చింతించబడినది',
+			  'నందకము:విష్ణుఖడ్గము  ', 'శేషించిన :మిగిలిన', 'కమండలం:సన్యాసుల పాత్ర', 'అద్వితీయ:సమానము లేని', 'జాపిరము:ఆలస్యము',
+			  'ఎనయిక :పొందిక', 'సవరని:అందమైన', 'సంస్కరణ:చక్కఁజేయుట', 'కట్టెపురి :నీరు తోడే సాధనము', 'అవిరల:ఎడతెగనిది',
+			  'వరాకుడు:పేదవాడు', 'ఉత్ప్రబంధ:గొప్ప గ్రంథము.', 'ఉద్వాసన :తొలఁగించుట', 'ఆవర్తము :నీటిసుడి / మేఘము', 'వలకడ:దక్షిణదిక్కు',
+			  'మధుజిత్తు:విష్ణువు', 'రమాపతి :విష్ణువు', 'మరునయ్య:విష్ణువు', 'మాధవుడు:విష్ణువు', 'తెల్లగఱి:హంస',
+			  'దడవరి :సేనాధిపతి', 'టంకశాల:ముద్రణాలయం', 'తన్తునాభ :సాలెపురుగు', 'కులీనస:జలము', 'అబందన :క్రమభంగం',
+			  'కైటభారి:హరి', 'కరవాల:ఖడ్గము'	
+        ];
+        
+        const STRDT = 45865; // Start date reference from TWORDLE.py
+        
+        // Get word of the day based on date
+        function getWordOfDay(date = new Date()) {
+            const excelDate = Math.floor((date - new Date(1899, 11, 30)) / (1000 * 60 * 60 * 24));
+            const elem = excelDate - STRDT;
+            
+            let wordMean;
+            try {
+                wordMean = gameWords[elem % gameWords.length];
+            } catch {
+                wordMean = gameWords[Math.floor(Math.random() * gameWords.length)];
+            }
+            
+            const delimPos = wordMean.indexOf(':');
+            const word = wordMean.substring(0, delimPos).trim().replace(/ /g, '');
+            const meaning = wordMean.substring(delimPos + 1).trim();
+            const syllables = transliterator.splitIntoSyllables(word);
+            
+            return { word, meaning, syllables };
+        }
+        
+        let currentWord = getWordOfDay();
+        let guesses = [];
+        let gameStatus = 'playing';
+        let easterEggTimer = null;
+        
+        // DOM elements
+        const englishInput = document.getElementById('englishInput');
+        const teluguPreview = document.getElementById('teluguPreview');
+        const submitBtn = document.getElementById('submitBtn');
+        const gameGrid = document.getElementById('gameGrid');
+        const gameStatusDiv = document.getElementById('gameStatus');
+        const helpBtn = document.getElementById('helpBtn');
+        const historyBtn = document.getElementById('historyBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const helpModal = document.getElementById('helpModal');
+        const easterEggDiv = document.getElementById('easterEgg');
+        // targetMeaning removed to save space
+        
+        let hintsUsed = 0;
+        
+        // Initialize game grid
+        function initializeGrid() {
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < 40; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'game-tile font-telugu';
+                gameGrid.appendChild(tile);
+            }
+        }
+        
+        // Update preview
+        function updatePreview() {
+            const englishText = englishInput.value;
+            const teluguText = transliterator.transliterate(englishText);
+            
+            if (teluguText) {
+                teluguPreview.textContent = teluguText;
+                submitBtn.disabled = false;
+            } else {
+                teluguPreview.innerHTML = '<span style="color: hsl(215 13% 44%);">Telugu preview...</span>';
+                submitBtn.disabled = true;
+            }
+        }
+        
+        // Complete 6-color analysis from TWORDLE.py
+        function analyzeGuess(guess, target, targetSyllables) {
+            const guessSyllables = transliterator.splitIntoSyllables(guess);
+            const colors = [];
+            const targetFirstChars = targetSyllables.map(syl => syl ? syl.charCodeAt(0) : 0);
+            
+            for (let i = 0; i < 4; i++) {
+                const guessSyll = guessSyllables[i] || '';
+                const targetSyll = targetSyllables[i] || '';
+                
+                // 1. GREEN: Exact match
+                if (guessSyll === targetSyll) {
+                    colors.push('correct');
+                    continue;
+                }
+                
+                // 2. PINK/PURPLE/BROWN: Same position, same base consonant, different gunintam/samyuktakshara
+                if (guessSyll && targetSyll && guessSyll.charCodeAt(0) === targetSyll.charCodeAt(0)) {
+                    // Check if it's a samyuktakshara (consonant + consonant)
+                    const hasConsonantJoin = (syllable) => {
+                        if (syllable.length < 2) return false;
+                        for (let i = 1; i < syllable.length; i++) {
+                            const charCode = syllable.charCodeAt(i);
+                            // Check if it's a consonant (hallu) including same consonant repetition
+                            if ((3093 <= charCode && charCode <= 3129) || (3160 <= charCode && charCode <= 3161)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                    
+                    const guessHasConsonant = hasConsonantJoin(guessSyll);
+                    const targetHasConsonant = hasConsonantJoin(targetSyll);
+                    
+                    // If both have consonant joins or same consonant repetition -> PURPLE (correct position, wrong samyuktakshara)
+                    if (guessHasConsonant || targetHasConsonant) {
+                        colors.push('correct-pos-wrong-samyuk'); // PURPLE
+                    } else {
+                        // Different gunintam (vowel signs only) -> PINK
+                        colors.push('wrong-pos-gunintam'); // PINK
+                    }
+                    continue;
+                }
+                
+                // 3. YELLOW: Wrong position but syllable exists
+                if (guessSyll && targetSyllables.includes(guessSyll)) {
+                    const targetCount = targetSyllables.filter(s => s === guessSyll).length;
+                    const correctCount = guessSyllables.slice(0, 4).filter((s, idx) => 
+                        s === targetSyllables[idx] && s === guessSyll).length;
+                    const occurrenceCount = guessSyllables.slice(0, i + 1).filter(s => s === guessSyll).length;
+                    
+                    if (targetCount - correctCount - occurrenceCount + 1 >= 0) {
+                        colors.push('wrong-syllable'); // YELLOW
+                        continue;
+                    }
+                }
+                
+                // 4. LIGHT BLUE/BROWN: Wrong position, basic consonant match
+                if (guessSyll && guessSyll.length > 0) {
+                    const guessFirstChar = guessSyll.charCodeAt(0);
+                    const targetCharCount = targetFirstChars.filter(c => c === guessFirstChar).length;
+                    
+                    if (targetCharCount > 0) {
+                        const correctCharCount = guessSyllables.slice(0, 4).filter((s, idx) => 
+                            s.length > 0 && s.charCodeAt(0) === targetFirstChars[idx] && 
+                            s.charCodeAt(0) === guessFirstChar).length;
+                        const charOccurrenceCount = guessSyllables.slice(0, i + 1).filter(s => 
+                            s.length > 0 && s.charCodeAt(0) === guessFirstChar).length;
+                        
+                        if (targetCharCount - correctCharCount - charOccurrenceCount + 1 >= 0 && 
+                            !targetSyllables.includes(guessSyll) && 
+                            targetFirstChars.includes(guessFirstChar)) {
+                            
+                            const targetIndex = targetFirstChars.indexOf(guessFirstChar);
+                            const targetMatch = targetSyllables[targetIndex];
+                            
+                            if (targetMatch && targetMatch.length - guessSyll.length > 1) {
+                                colors.push('wrong-samyuk'); // BROWN
+                            } else {
+                                colors.push('wrong-gunintam'); // LIGHT BLUE
+                            }
+                            continue;
+                        }
+                    }
+                }
+                
+                // 5. GRAY: Not found
+                colors.push('absent');
+            }
+            
+            return colors;
+        }
+        
+        // Update game grid
+        function updateGrid() {
+            const tiles = gameGrid.children;
+            
+            for (let i = 0; i < 40; i++) {
+                const rowIndex = Math.floor(i / 4);
+                const colIndex = i % 4;
+                const guess = guesses[rowIndex];
+                
+                if (guess) {
+                    tiles[i].textContent = guess.syllables[colIndex] || '';
+                    tiles[i].className = `game-tile font-telugu tile-${guess.colors[colIndex] || 'absent'}`;
+                } else {
+                    tiles[i].textContent = '';
+                    tiles[i].className = 'game-tile font-telugu';
+                }
+            }
+        }
+        
+        // Update game status
+        function updateGameStatus() {
+            if (gameStatus === 'won') {
+                const attempts = guesses.length;
+                const hintText = hintsUsed > 0 ? ' (with hint)' : '';
+                const celebrations = ['🎉', '✨', '🌟', '🎊', '💫'];
+                const randomCelebration = celebrations[Math.floor(Math.random() * celebrations.length)];
+                
+                // Show auto-dismissing congratulation message
+                showCongratulationMessage(`${randomCelebration} Excellent! You solved it in ${attempts} attempt${attempts > 1 ? 's' : ''}${hintText}! ${randomCelebration}`);
+                
+                gameStatusDiv.innerHTML = `
+                    <div class="status-won">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">${randomCelebration}</div>
+                        <div><strong>Congratulations!</strong></div>
+                        <div style="margin-top: 0.5rem;">You solved it in ${attempts} attempt${attempts > 1 ? 's' : ''}${hintText}!</div>
+                        <div style="margin-top: 0.5rem; font-size: 1rem; color: hsl(142 76% 70%);">
+                            Word: <span class="font-telugu">${currentWord.word}</span> (${currentWord.meaning})
+                        </div>
+                    </div>
+                `;
+            } else if (gameStatus === 'lost') {
+                // Show auto-dismissing game over message
+                showGameOverMessage(`💔 Game Over! The word was: ${currentWord.word} (${currentWord.meaning})`);
+                
+                gameStatusDiv.innerHTML = '';
+            } else {
+                gameStatusDiv.innerHTML = '';
+            }
+        }
+        
+        // Show auto-dismissing congratulation message
+        function showCongratulationMessage(message) {
+            const congratsDiv = document.createElement('div');
+            congratsDiv.className = 'congratulation-message';
+            congratsDiv.innerHTML = message;
+            document.body.appendChild(congratsDiv);
+            
+            // Auto-remove after animation
+            setTimeout(() => {
+                if (congratsDiv.parentNode) {
+                    congratsDiv.parentNode.removeChild(congratsDiv);
+                }
+            }, 5000);
+        }
+        
+        // Show auto-dismissing game over message
+        function showGameOverMessage(message) {
+            const gameOverDiv = document.createElement('div');
+            gameOverDiv.className = 'game-over-message';
+            gameOverDiv.innerHTML = `<div class="font-telugu">${message}</div>`;
+            document.body.appendChild(gameOverDiv);
+            
+            // Auto-remove after animation
+            setTimeout(() => {
+                if (gameOverDiv.parentNode) {
+                    gameOverDiv.parentNode.removeChild(gameOverDiv);
+                }
+            }, 5000);
+        }
+        
+        // Submit guess
+        function submitGuess() {
+            if (gameStatus !== 'playing') return;
+            
+            const englishText = englishInput.value.trim();
+            if (!englishText) return;
+            
+            const teluguText = transliterator.transliterate(englishText);
+            const syllables = transliterator.splitIntoSyllables(teluguText);
+            
+            // Validate syllable count
+            const validSyllables = syllables.filter(s => s.trim() !== '');
+            if (validSyllables.length !== 4) {
+                // Show validation message
+                const existingValidation = document.querySelector('.validation-display');
+                if (existingValidation) existingValidation.remove();
+                
+                const validationDiv = document.createElement('div');
+                validationDiv.className = 'hint-display validation-display';
+                validationDiv.innerHTML = `
+                    <div><strong>Invalid Word Length</strong></div>
+                    <div style="margin-top: 0.5rem;">Word should be exactly 4 syllables</div>
+                    <div style="margin-top: 0.25rem; font-size: 0.875rem; opacity: 0.8;">Current: ${validSyllables.length} syllable${validSyllables.length !== 1 ? 's' : ''}</div>
+                `;
+                
+                const inputSection = document.querySelector('.input-section');
+                inputSection.parentNode.insertBefore(validationDiv, inputSection.nextSibling);
+                
+                return;
+            }
+            
+            const colors = analyzeGuess(teluguText, currentWord.word, currentWord.syllables);
+            
+            guesses.push({
+                guess: teluguText,
+                syllables: syllables,
+                colors: colors
+            });
+            
+            // Check win/lose conditions
+            if (teluguText === currentWord.word) {
+                gameStatus = 'won';
+            } else if (guesses.length >= 10) {
+                gameStatus = 'lost';
+            }
+            
+            // Clear input
+            englishInput.value = '';
+            updatePreview();
+            updateGrid();
+            updateGameStatus();
+        }
+        
+        // Helper functions
+        function toggleHelp() {
+            helpModal.style.display = helpModal.style.display === 'none' ? 'flex' : 'none';
+        }
+        
+        // History management functions
+        let selectedDate = new Date();
+        
+        function toggleHistory() {
+            const historyModal = document.getElementById('historyModal');
+            const isVisible = historyModal.style.display === 'flex';
+            
+            if (!isVisible) {
+                displayDateList();
+                historyModal.style.display = 'flex';
+            } else {
+                historyModal.style.display = 'none';
+            }
+        }
+        
+        function displayDateList() {
+            const dateList = document.getElementById('dateList');
+            const today = new Date();
+            const dateItems = [];
+            
+            // Generate past 7 days
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                
+                const dateStr = date.toDateString();
+                const isToday = i === 0;
+                
+                let displayText;
+                if (isToday) {
+                    displayText = 'Today';
+                } else if (i === 1) {
+                    displayText = 'Yesterday';
+                } else {
+                    displayText = date.toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                }
+                
+                dateItems.push(`
+                    <li class="date-item ${isToday ? 'today' : ''}" onclick="selectDate('${dateStr}')">
+                        ${displayText}
+                    </li>
+                `);
+            }
+            
+            dateList.innerHTML = dateItems.join('');
+        }
+        
+        function selectDate(dateString) {
+            selectedDate = new Date(dateString);
+            
+            // Update current date display
+            const currentDateDisplay = document.getElementById('currentDateDisplay');
+            const today = new Date();
+            
+            if (selectedDate.toDateString() === today.toDateString()) {
+                // Hide date display for today
+                currentDateDisplay.style.display = 'none';
+            } else {
+                // Show selected date in DD MMM YYYY format
+                const displayText = selectedDate.toLocaleDateString('en-GB', { 
+                    day: '2-digit',
+                    month: 'short', 
+                    year: 'numeric'
+                }).replace(/,/g, '');
+                currentDateDisplay.textContent = displayText;
+                currentDateDisplay.style.display = 'block';
+            }
+            
+            // Start new game with selected date
+            startGameForDate(selectedDate);
+            
+            // Close history modal
+            toggleHistory();
+        }
+        
+        function startGameForDate(date) {
+            // Reset game state
+            guesses = [];
+            gameStatus = 'playing';
+            hintsUsed = 0;
+            
+            // Get word for the selected date
+            currentWord = getWordOfDay(date);
+            
+            // Update UI
+            englishInput.value = '';
+            updatePreview();
+            updateGrid();
+            updateGameStatus();
+            
+            
+            // Remove any existing displays
+            const existingDisplays = document.querySelectorAll('.hint-display, .validation-display');
+            existingDisplays.forEach(display => display.remove());
+            
+            // Reset hint button
+            hintBtn.disabled = false;
+            hintBtn.style.opacity = '1';
+            hintBtn.title = 'Hint (requires at least one correct syllable)';
+        }
+        
+        function newGame() {
+            // Reset to today's date
+            selectedDate = new Date();
+            const currentDateDisplay = document.getElementById('currentDateDisplay');
+            
+            // Show current date by default
+            const today = new Date();
+            const todayFormatted = today.toLocaleDateString('en-GB', { 
+                day: '2-digit',
+                month: 'short', 
+                year: 'numeric'
+            }).replace(/,/g, '');
+            currentDateDisplay.textContent = todayFormatted;
+            currentDateDisplay.style.display = 'block';
+            
+            guesses = [];
+            gameStatus = 'playing';
+            hintsUsed = 0;
+            currentWord = getWordOfDay();
+            englishInput.value = '';
+            updatePreview();
+            updateGrid();
+            updateGameStatus();
+            
+            
+            // Remove any existing hint or validation displays
+            const existingDisplays = document.querySelectorAll('.hint-display, .validation-display');
+            existingDisplays.forEach(display => display.remove());
+            
+            // Reset hint button
+            hintBtn.disabled = false;
+            hintBtn.style.opacity = '1';
+            hintBtn.title = 'Hint (requires at least one correct syllable)';
+        }
+        
+        function hasCorrectSyllable() {
+            // Check if player has at least one Yellow or Green tile
+            for (const guess of guesses) {
+                for (const color of guess.colors) {
+                    if (color === 'correct' || color === 'wrong-syllable') {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        function dismissHint() {
+            const existingHint = document.querySelector('.hint-display');
+            if (existingHint) {
+                existingHint.remove();
+            }
+        }
+        
+        function showHint() {
+            if (gameStatus !== 'playing' || hintsUsed >= 1) return;
+            
+            // Remove any existing hint
+            dismissHint();
+            
+            // Check if player has solved at least one syllable
+            if (!hasCorrectSyllable()) {
+                // Show message that at least one syllable must be solved
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'hint-display';
+                hintDiv.innerHTML = `
+                    <div><strong>Hint Not Available</strong></div>
+                    <div style="margin-top: 0.5rem;">At least one syllable to be solved for Hint</div>
+                    <div style="margin-top: 0.25rem; font-size: 0.875rem; opacity: 0.8;">Get a Yellow or Green tile first!</div>
+                `;
+                
+                // Add hint as fixed overlay to prevent layout displacement
+                document.body.appendChild(hintDiv);
+                
+                // Auto-dismiss after 4 seconds
+                setTimeout(() => {
+                    if (hintDiv.parentNode) {
+                        hintDiv.parentNode.removeChild(hintDiv);
+                    }
+                }, 4000);
+                
+                return;
+            }
+            
+            hintsUsed++;
+            
+            // Show the word meaning as hint
+            const hintDiv = document.createElement('div');
+            hintDiv.className = 'hint-display';
+            hintDiv.innerHTML = `
+                <div><strong>Hint:</strong></div>
+                <div style="margin-top: 0.5rem;">Word meaning: <strong>${currentWord.meaning}</strong></div>
+                <div style="margin-top: 0.25rem; font-size: 0.75rem; opacity: 0.7;">Click anywhere or press any key to dismiss</div>
+            `;
+            
+            // Add hint as fixed overlay to prevent layout displacement
+            document.body.appendChild(hintDiv);
+            
+            // Auto-dismiss after 4 seconds
+            setTimeout(() => {
+                if (hintDiv.parentNode) {
+                    hintDiv.parentNode.removeChild(hintDiv);
+                }
+            }, 4000);
+            
+            // Update hint button - only one hint available now
+            hintBtn.disabled = true;
+            hintBtn.style.opacity = '0.5';
+            hintBtn.title = 'Hint already used';
+        }
+        
+        function showEasterEgg() {
+            if (guesses.length >= 5 && gameStatus === 'playing') {
+                easterEggDiv.querySelector('.font-telugu').textContent = currentWord.syllables[0];
+                easterEggDiv.style.display = 'block';
+                setTimeout(() => {
+                    easterEggDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Event listeners
+        // Handle first character auto-capitalization only
+        englishInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            // Only convert first character to lowercase if it was auto-capitalized
+            if (value.length === 1 && value === value.toUpperCase() && value !== value.toLowerCase()) {
+                e.target.value = value.toLowerCase();
+            }
+            updatePreview();
+        });
+        englishInput.addEventListener('keydown', (e) => {
+            // Dismiss any hints on key press
+            dismissHint();
+            
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitGuess();
+            }
+        });
+        submitBtn.addEventListener('click', submitGuess);
+        helpBtn.addEventListener('click', toggleHelp);
+        historyBtn.addEventListener('click', toggleHistory);
+        hintBtn.addEventListener('click', showHint);
+        newGameBtn.addEventListener('click', newGame);
+        
+        // Global click handler to dismiss hints (mobile-friendly)
+        document.addEventListener('click', (e) => {
+            const hintDisplay = document.querySelector('.hint-display');
+            if (hintDisplay && !hintDisplay.contains(e.target) && e.target !== hintBtn) {
+                dismissHint();
+            }
+        });
+        
+        // Global keydown handler to dismiss hints
+        document.addEventListener('keydown', (e) => {
+            // Only dismiss if it's not the input field (to avoid interference)
+            if (e.target !== englishInput) {
+                dismissHint();
+            }
+        });
+        
+        // Easter egg functionality
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && !easterEggTimer) {
+                easterEggTimer = setTimeout(showEasterEgg, 3000);
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (easterEggTimer && (!e.ctrlKey || !e.shiftKey)) {
+                clearTimeout(easterEggTimer);
+                easterEggTimer = null;
+            }
+        });
+        
+        // Close modal on click outside
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                toggleHelp();
+            }
+        });
+        
+        // Close history modal on click outside
+        document.getElementById('historyModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('historyModal')) {
+                toggleHistory();
+            }
+        });
+        
+        // Initialize game
+        initializeGrid();
+        updatePreview();
+        updateGrid();
+        updateGameStatus();
+        
+        // Show current date by default
+        const currentDateDisplay = document.getElementById('currentDateDisplay');
+        const today = new Date();
+        const todayFormatted = today.toLocaleDateString('en-GB', { 
+            day: '2-digit',
+            month: 'short', 
+            year: 'numeric'
+        }).replace(/,/g, '');
+        currentDateDisplay.textContent = todayFormatted;
+        currentDateDisplay.style.display = 'block';
+        
+        hintBtn.title = 'Hint (requires at least one correct syllable)';
+        englishInput.focus();
