@@ -243,7 +243,7 @@
 			  'కైటభారి:హరి', 'కరవాల:ఖడ్గము'	
         ];
         
-        const STRDT = 45865; // Start date reference from TWORDLE.py
+        const STRDT = 45864; // Start date reference from TWORDLE.py
         
         // Get word of the day based on date
         function getWordOfDay(date = new Date()) {
