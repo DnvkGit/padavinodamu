@@ -247,10 +247,17 @@
         
         // Get word of the day based on date
         function getWordOfDay(date = new Date()) {
-            const excelDate = Math.floor((date - new Date(1899, 11, 30)) / (1000 * 60 * 60 * 24));
-		
+
+	    date.setHours(0,0,0,0)
+	    const datest = new Date('1900-01-01T00:00:00')
+	    const excelDate = Math.floor((date - datest)/(1000*60*60*24))
+	    const elem = excelDate - STRDT;
+	    // const excelDate = Math.floor((date - new Date(1899, 11, 30)) / (1000 * 60 * 60 * 24));
+	    // const elem = excelDate - STRDT;
+	    //console.log(date,datest,excelDate,STRDT,elem)	
+            /*const excelDate = Math.floor((date - new Date(1899, 11, 30)) / (1000 * 60 * 60 * 24));
             const elem = excelDate - STRDT;
-	    console.log(STRDT, "-", excelDate,excelDate-STRDT,elem)
+	    console.log(STRDT, "-", excelDate,excelDate-STRDT,elem) */
             
             let wordMean;
             try {
