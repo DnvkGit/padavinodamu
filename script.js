@@ -248,7 +248,9 @@
         // Get word of the day based on date
         function getWordOfDay(date = new Date()) {
             const excelDate = Math.floor((date - new Date(1899, 11, 30)) / (1000 * 60 * 60 * 24));
+		
             const elem = excelDate - STRDT;
+	    console.log(STRDT, "-", excelDate,excelDate-STRDT,elem)
             
             let wordMean;
             try {
@@ -261,7 +263,7 @@
             const word = wordMean.substring(0, delimPos).trim().replace(/ /g, '');
             const meaning = wordMean.substring(delimPos + 1).trim();
             const syllables = transliterator.splitIntoSyllables(word);
-            
+            console.log(word,meaning,syllables)
             return { word, meaning, syllables };
         }
         
